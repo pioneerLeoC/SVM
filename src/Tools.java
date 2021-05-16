@@ -45,9 +45,6 @@ public class Tools {
         for (int i = 0; i < len; i++) {
             result[i] = paraC;
         }// end of if
-        if (flag){
-
-        }
         return result;
     }
 }
