@@ -104,9 +104,8 @@ public class Algorithm {
         int best = -1;
         ArrayList<Integer> validArr = new ArrayList<>();
         for (int i = 0; i < alpha.length; i++) {
-            if(alpha[i] > 0 && i != best_i)
-                validArr.add(i);
-        }// end of for
+            if(alpha[i] > 0 && i != best_i) validArr.add(i);
+        } // end of for
 //        System.out.println(validArr);
 
         if(!validArr.isEmpty()){
@@ -116,8 +115,8 @@ public class Algorithm {
                 if (current > max) {
                     best = i;
                     max = current;
-                }
-            }
+                }//end of if
+            }// end of for
         }else{
             // 随机选择
             while (true){
@@ -141,8 +140,8 @@ public class Algorithm {
      * @return 是否满足KKT条件
      */
     private boolean meetKKT(double[] data, double label, int site){
-        if (alpha[site] < C[site])return label * calValue(data) >= 1 - tol;
-        else return label * calValue(data) <= 1 - tol;
+        if (alpha[site] < C[site]) return label * calValue(data) >= 1 - tol;
+        else return label * calValue(data) <= 1 + tol;
     }
 
     /**
@@ -151,7 +150,6 @@ public class Algorithm {
      * @param paraY 标签
      */
     public void fit(double[][] paraX, double[] paraY) {
-
         initParams(paraX, paraY);
         //SMO算法
         for (int k = 0; k < epochs; k++) {
@@ -172,40 +170,36 @@ public class Algorithm {
 
                     // 进行更新操作
                     // 1. 获取无裁剪的最优alpha_2
-//                    System.out.println(best_j);
-//                    System.out.println(Arrays.toString(x_i) + " " + Arrays.toString(x_j));
-//                    System.out.println(fuc.calculate(x_i, x_i) + " " + fuc.calculate(x_j, x_j));
                     double eta = fuc.calculate(x_i, x_i) + fuc.calculate(x_j, x_j) - 2.0 * fuc.calculate(x_i, x_j);
                     if (eta < 1e-3) {
                         continue;
-                    }
+                    }//end of if
                     double delta = y_j * (error[i] - error[best_j]) / eta;
 
-                    // 2. 如果变化不大，则跳过
-                    if (Math.abs(delta) < 1e-3) {
-                        continue;
-                    }
                     double alpha_j_unc = alpha_j_old + delta;
 
                     // 3. 裁剪并得到new alpha_2
-                    double tempL = 0;
-                    double tempH = C[i];
+                    double tempL ;
+                    double tempH ;
                     if (y_i == y_j) {
-                        tempL = Math.max(tempL, alpha_i_old + alpha_j_old - tempH);
-                        tempH = Math.min(tempH, alpha_i_old + alpha_j_old);
+                        tempL = Math.max(0, alpha_i_old + alpha_j_old - C[i]);
+                        tempH = Math.min(C[i], alpha_i_old + alpha_j_old);
                     } else {
-                        tempL = Math.max(tempL, alpha_i_old - alpha_j_old);
-                        tempH = Math.min(tempH, alpha_j_old - alpha_i_old + tempH);
+                        tempL = Math.max(0, alpha_i_old - alpha_j_old);
+                        tempH = Math.min(C[i], alpha_j_old - alpha_i_old + C[i]);
                     }// end of if
-//                    System.out.println(alpha_i_old + " " + alpha_j_old);
-//                    System.out.println("tempL:" + tempL + "  tempH:" + tempH + "  alpha_j_unc:" + alpha_j_unc);
+
                     double alpha_j_new;
                     double alpha_i_new;
                     if (alpha_j_unc < tempL) alpha_j_new = tempL;
                     else alpha_j_new = Math.min(alpha_j_unc, tempH);
 
+                    // 如果变化不大，则跳过
+                    if (Math.abs(alpha_j_new - alpha_j_old) < 1e-6) {
+                        continue;
+                    }//end of if
+
                     // 4. 得到alpha_i_new
-//                    System.out.println(alpha_j_old + " " + alpha_j_new);
                     alpha_i_new = alpha_i_old + y_i * y_j * (alpha_j_old - alpha_j_new);
 
                     // 5. 更新alpha[i],alpha[j]

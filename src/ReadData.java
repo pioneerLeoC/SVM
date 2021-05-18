@@ -35,6 +35,7 @@ public class ReadData {
             int cellCount = row.getPhysicalNumberOfCells(); //获取总列数
             data = new double[rowCount][cellCount - 1];
             label = new double[rowCount];
+
             //遍历每一行
 //            System.out.println(rowCount + " " + cellCount);
             for (int r = 0; r < rowCount; r++) {
@@ -48,6 +49,20 @@ public class ReadData {
                     else label[r] = cellValue;
                 }
             }
+
+//            double[] max = new double[label.length];
+//            for (int i = 0; i < data[0].length; i++) {
+//                for (double[] datum : data) {
+//                    if (datum[i] > max[i]) max[i] = datum[i];
+//                }
+//            }
+
+            //归一化
+//            for (int i = 0; i < data.length; i++) {
+//                for (int j = 0; j < data[i].length; j++) {
+//                    data[i][j] /= max[j];
+//                }
+//            }
         }
         catch (Exception e) {
             e.printStackTrace();
